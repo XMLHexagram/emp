@@ -17,8 +17,8 @@ type Config struct {
 	// it. If this is false, a map will be merged.
 	ZeroFields bool
 
-	// The tag name that mapstructure reads for field names. This
-	// defaults to "mapstructure"
+	// The tag name that emp reads for field names. This
+	// defaults to "emp"
 	TagName string
 
 	Prefix string
@@ -27,7 +27,7 @@ type Config struct {
 
 	DirectDefault bool
 
-	ParseStringToSlice func(s string) []string
+	ParseStringToArrayAndSlice func(s string) []string
 }
 
 func NewParser(config *Config) (*Parser, error) {
@@ -39,8 +39,8 @@ func NewParser(config *Config) (*Parser, error) {
 		config.TagName = "emp"
 	}
 
-	if config.ParseStringToSlice == nil {
-		config.ParseStringToSlice = ParseStringToSlice
+	if config.ParseStringToArrayAndSlice == nil {
+		config.ParseStringToArrayAndSlice = ParseStringToSlice
 	}
 
 	return &Parser{
@@ -289,7 +289,7 @@ func (self *Parser) parseArray(prefix string, name string, default_ string, dire
 	if self.config.ZeroFields {
 		valArray = reflect.New(arrayType).Elem()
 	}
-	dataSlice := self.config.ParseStringToSlice(envString)
+	dataSlice := self.config.ParseStringToArrayAndSlice(envString)
 
 	if len(dataSlice) > valArray.Len() {
 		return empErr.
@@ -331,7 +331,7 @@ func (self *Parser) parseSlice(prefix string, name string, default_ string, dire
 		return err
 	}
 
-	dataSlice := self.config.ParseStringToSlice(envString)
+	dataSlice := self.config.ParseStringToArrayAndSlice(envString)
 
 	// Accumulate any errors
 	errors := make([]string, 0)
