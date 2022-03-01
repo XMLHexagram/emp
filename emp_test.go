@@ -568,3 +568,38 @@ func TestIgnore(t *testing.T) {
 
 	assert.Equal(t, expect, res)
 }
+
+func TestAutoPrefix(t *testing.T) {
+	parseEnv(map[string]string{
+		"TEST_AUTO_PREFIX_A114514": "1919810",
+	})
+
+	type inline struct {
+		A114514 int
+	}
+
+	type args struct {
+		TEST_AUTO_PREFIX_ inline
+	}
+
+	expect := &args{
+		inline{
+			1919810,
+		},
+	}
+
+	res := new(args)
+
+	parser, err := NewParser(&Config{
+		AutoPrefix: true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = parser.Parse(res)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, expect, res)
+}

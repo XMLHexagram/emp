@@ -318,6 +318,11 @@ func (self *Parser) parseStruct(prefix string, name string, default_ string, dir
 			continue
 		}
 
+		// auto prefix
+		if field.Type().Kind() == reflect.Struct && tagPrefix == "" && self.config.AutoPrefix {
+			prefix = name
+		}
+
 		err := self.parse(prefix+tagPrefix, name, default_, directDefault, field)
 		if err != nil {
 			return err
