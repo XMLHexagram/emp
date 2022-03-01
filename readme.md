@@ -100,7 +100,7 @@ If you have any idea, please [open an issue](https://github.com/XMLHexagram/emp/
 
 ## Thanks
 
-Thanks to [mapstructure/mapstructure](github.com/mitchellh/mapstructure), I used code from your repo.
+Thanks to [mitchellh/mapstructure](https://github.com/mitchellh/mapstructure), I used code from your repo.
 
 ## More Feature or Bug Report
 
