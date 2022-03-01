@@ -1,3 +1,101 @@
+// Package emp exposes functionality to convert environment value into
+// a struct.
+//
+// The Go structure can be arbitrarily complex, containing slices,
+// other structs, etc. and the parser will properly parse the environment
+// value and populate the values into the native struct.
+//
+// See the examples to see what the parser is capable of.
+//
+// The simplest function to start with is Parser.
+//
+// Field Tags
+//
+// When decoding to a struct, emp will use the field name by
+// default to perform the mapping. For example, if a struct has a field
+// "DATABASE_URL" then emp will look for a key in the environment
+// of "DATABASE_URL" (case-sensitive).
+//
+//     type Model struct {
+//         DATABASE_URL string
+//     }
+//
+// You can change the behavior of emp by using struct tags.
+// The default struct tag that emp looks for is "emp"
+// but you can customize it using Config.
+//
+// Renaming Fields
+//
+// To rename the key that emp looks for, use the "emp"
+// tag and set a value directly. For example, to change the "DATABASE_URL" example
+// above to "DATABASE_DSN":
+//
+//     type Model struct {
+//         DATABASE_URL string `emp:"DATABASE_DSN"`
+//     }
+//
+// Embedded Structs and Squashing
+//
+// By default, Embedded structs are treated as prefix by their name.
+// emp:
+//
+//    type Model struct {
+//        DATABASE_URL string
+//        USER_ User
+//    }
+//
+//    type User struct {
+//        Name string
+//		  Pass string
+//	  }
+//
+// With environment value:
+//
+//	DATABASE_URL=postgres://user:pass@host:port/db
+//	USER_NAME=user
+//	USER_PASS=pass
+//
+// Will be converted to:
+//
+//    type Model struct {
+//        DATABASE_URL: "postgres://user:pass@host:port/db",
+//        USER_: {
+//            Name: "user",
+//            Pass: "pass",
+//        },
+//    }
+//
+// Config has a field that changes the behavior of emp
+// to disable auto prefix.
+//
+// Unexported fields
+//
+// Since unexported (private) struct fields cannot be set outside the package
+// where they are defined, the parser will simply skip them.
+//
+// For this output type definition:
+//
+//     type Exported struct {
+//         private string // this unexported field will be skipped
+//         PUBLIC string
+//     }
+//
+// Using this as environment value:
+//
+//     private=secret
+//     PUBLIC=SECRET
+//
+// The following struct will be parsed:
+//
+//     type Exported struct {
+//         private: "" // field is left with an empty string (zero value)
+//         Public: "SECRET"
+//     }
+//
+// Other Configuration
+//
+// emp is highly configurable. See the Config struct
+// for other features and options that are supported.
 package emp
 
 import (
@@ -29,6 +127,9 @@ type Config struct {
 
 	// Prefix, if set, will be the first part of all environment value name.
 	Prefix string
+
+	// AutoPrefix, default to true, it will add prefix automatically when meet embedded struct(use key).
+	AutoPrefix bool
 
 	// AllowEmpty, if set to true, will allow empty values in environment values.
 	AllowEmpty bool
