@@ -139,6 +139,9 @@ type Config struct {
 
 	// ParseStringToArrayAndSlice, customize the way split string to array and slice.
 	ParseStringToArrayAndSlice func(s string) []string
+
+	marshal    bool
+	marshalRes string
 }
 
 // NewParser returns a new parser for the given configuration. Once
@@ -163,7 +166,7 @@ func NewParser(config *Config) (*Parser, error) {
 }
 
 // Parse takes an input structure and uses reflection to translate it to
-// the output structure. output must be a pointer to a map or struct.
+// the output structure. output must be a pointer to a struct.
 func Parse(inputPtrInterface interface{}) error {
 	config := &Config{}
 
@@ -175,10 +178,37 @@ func Parse(inputPtrInterface interface{}) error {
 	return parser.Parse(inputPtrInterface)
 }
 
+// Marshal struct to get an env file format string.
+func Marshal(inputPtrInterface interface{}) (string, error) {
+	config := &Config{}
+
+	parser, err := NewParser(config)
+	if err != nil {
+		return "", err
+	}
+
+	return parser.Marshal(inputPtrInterface)
+}
+
 // Parse parses the given raw interface to the target pointer specified
 // by the configuration.
 func (self *Parser) Parse(StructPtrInterface interface{}) error {
 	return self.parse(self.config.Prefix, "", "", self.config.DirectDefault, reflect.ValueOf(StructPtrInterface).Elem())
+}
+
+// Marshal struct to get an env file format string.
+func (self *Parser) Marshal(StructPtrInterface interface{}) (string, error) {
+	self.config.marshal = true
+	self.config.marshalRes = ""
+	defer func() {
+		self.config.marshal = false
+		self.config.marshalRes = ""
+	}()
+	err := self.parse(self.config.Prefix, "", "", self.config.DirectDefault, reflect.ValueOf(StructPtrInterface).Elem())
+	if err != nil {
+		return "", err
+	}
+	return self.config.marshalRes, nil
 }
 
 // parse environment value to specific reflection value.
@@ -236,6 +266,11 @@ func (self *Parser) parseBool(prefix string, name string, default_ string, direc
 	val = reflect.Indirect(val)
 	// valType := val.Type()
 
+	if self.config.marshal {
+		self.config.marshalRes += fmt.Sprintf("%s=%t\n", prefix+name, val.Bool())
+		return nil
+	}
+
 	var value bool
 
 	key := prefix + name
@@ -257,6 +292,11 @@ func (self *Parser) parseString(prefix string, name string, default_ string, dir
 	val = reflect.Indirect(val)
 	// valType := val.Type()
 
+	if self.config.marshal {
+		self.config.marshalRes += fmt.Sprintf("%s=%s\n", prefix+name, val.String())
+		return nil
+	}
+
 	var value string
 
 	key := prefix + name
@@ -276,6 +316,11 @@ func (self *Parser) parsePointer(prefix string, name string, default_ string, di
 	// into that. Then set the value of the pointer to this type.
 	valType := val.Type()
 	valElemType := valType.Elem()
+
+	if self.config.marshal {
+		err := self.parse(prefix, name, "", directDefault, reflect.Indirect(val))
+		return err
+	}
 
 	if val.CanSet() {
 		realVal := val
@@ -335,6 +380,11 @@ func (self *Parser) parseFloatX(prefix string, name string, default_ string, dir
 	val = reflect.Indirect(val)
 	// valType := val.Type()
 
+	if self.config.marshal {
+		self.config.marshalRes += fmt.Sprintf("%s=%f", prefix+name, val.Float())
+		return nil
+	}
+
 	var value float64
 
 	key := prefix + name
@@ -356,6 +406,11 @@ func (self *Parser) parseIntX(prefix string, name string, default_ string, direc
 	val = reflect.Indirect(val)
 	// valType := val.Type()
 
+	if self.config.marshal {
+		self.config.marshalRes += fmt.Sprintf("%s=%d\n", prefix+name, val.Int())
+		return nil
+	}
+
 	var value int64
 
 	key := prefix + name
@@ -376,6 +431,11 @@ func (self *Parser) parseIntX(prefix string, name string, default_ string, direc
 func (self *Parser) parseUintX(prefix string, name string, default_ string, directDefault bool, val reflect.Value, X int) error {
 	val = reflect.Indirect(val)
 	// valType := val.Type()
+
+	if self.config.marshal {
+		self.config.marshalRes += fmt.Sprintf("%s=%d\n", prefix+name, val.Uint())
+		return nil
+	}
 
 	var value uint64
 
@@ -402,6 +462,11 @@ func (self *Parser) parseArray(prefix string, name string, default_ string, dire
 	valType := val.Type()
 	valElemType := valType.Elem()
 	arrayType := reflect.ArrayOf(valType.Len(), valElemType)
+
+	if self.config.marshal {
+		self.config.marshalRes += fmt.Sprintf("%s=%v\n", prefix+name, val.Interface())
+		return nil
+	}
 
 	valArray := val
 
@@ -445,6 +510,11 @@ func (self *Parser) parseSlice(prefix string, name string, default_ string, dire
 	valElemType := valType.Elem()
 	sliceType := reflect.SliceOf(valElemType)
 
+	if self.config.marshal {
+		self.config.marshalRes += fmt.Sprintf("%s=%v\n", prefix+name, val.Interface())
+		return nil
+	}
+
 	valSlice := val
 	if valSlice.IsNil() || self.config.ZeroFields {
 		// Make a new slice to hold our result, same size as the original data.
@@ -485,6 +555,11 @@ func (self *Parser) parseSlice(prefix string, name string, default_ string, dire
 func (self *Parser) parseInterface(prefix string, name string, default_ string, directDefault bool, val reflect.Value) error {
 	val = reflect.Indirect(val)
 	// valType := val.Type()
+
+	if self.config.marshal {
+		self.config.marshalRes += fmt.Sprintf("%s=%v\n", prefix+name, val.Interface())
+		return nil
+	}
 
 	var value string
 

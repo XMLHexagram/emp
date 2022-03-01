@@ -1,6 +1,7 @@
 package emp
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"strings"
@@ -601,5 +602,42 @@ func TestAutoPrefix(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	assert.Equal(t, expect, res)
+}
+
+func TestMarshal(t *testing.T) {
+	type Inline struct {
+		STRING string
+		ARRAY  []string
+	}
+
+	type args struct {
+		BOOL bool
+		INT  int
+		Inline
+	}
+
+	expect := `
+BOOL=false
+INT=10000
+STRING=gogogo
+ARRAY=1,3,5
+`
+
+	input := &args{
+		BOOL: false,
+		INT:  10000,
+		Inline: Inline{
+			STRING: "gogogo",
+			ARRAY:  []string{"1", "3", "5"},
+		},
+	}
+
+	res, err := Marshal(input)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(res)
 	assert.Equal(t, expect, res)
 }
