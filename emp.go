@@ -302,9 +302,11 @@ func (self *Parser) parsePointer(prefix string, name string, default_ string, di
 func (self *Parser) parseStruct(prefix string, name string, default_ string, directDefault bool, val reflect.Value) error {
 	val = reflect.Indirect(val)
 	valType := val.Type()
-
 	for i := 0; i < val.NumField(); i++ {
 		field := val.Field(i)
+		if !field.CanSet() {
+			continue
+		}
 		fieldName := valType.Field(i).Name
 		tagPrefix, name, default_, isIgnore := parseTagString(valType.Field(i).Tag.Get(self.config.TagName))
 

@@ -173,11 +173,11 @@ func TestStruct(t *testing.T) {
 	}
 
 	type args struct {
-		inline
+		Inline inline
 	}
 
 	expect := &args{
-		inline{
+		Inline: inline{
 			TEST_STRUCT_STRING: "test",
 			TEST_STRUCT_INT:    114514,
 		},
@@ -260,7 +260,7 @@ func TestZeroField(t *testing.T) {
 		"TEST_ZERO_FIELD_INT":       "12210",
 	})
 
-	type inline struct {
+	type Inline struct {
 		TEST_ZERO_FIELD_ARRAY     [2]int
 		TEST_ZERO_FIELD_SLICE     []int
 		TEST_ZERO_FIELD_INTERFACE interface{}
@@ -268,12 +268,12 @@ func TestZeroField(t *testing.T) {
 
 	type args struct {
 		TEST_ZERO_FIELD_INT int
-		inline
+		Inline
 	}
 
 	expect := &args{
 		TEST_ZERO_FIELD_INT: 12210,
-		inline: inline{
+		Inline: Inline{
 			TEST_ZERO_FIELD_ARRAY:     [2]int{114514, 1919810},
 			TEST_ZERO_FIELD_SLICE:     []int{114514, 1919810},
 			TEST_ZERO_FIELD_INTERFACE: "114514,1919810",
@@ -282,7 +282,7 @@ func TestZeroField(t *testing.T) {
 
 	res := &args{
 		TEST_ZERO_FIELD_INT: 123456,
-		inline: inline{
+		Inline: Inline{
 			TEST_ZERO_FIELD_ARRAY:     [2]int{123, 456},
 			TEST_ZERO_FIELD_SLICE:     []int{123, 456},
 			TEST_ZERO_FIELD_INTERFACE: "🇺🇦",
@@ -345,13 +345,13 @@ func TestPrefix(t *testing.T) {
 	type args struct {
 		CREATOR string `emp:"prefix:LOVELY_"`
 		GULU    int    `emp:"prefix:KALA_"`
-		inline  `emp:"prefix:DING_DONG_"`
+		Inline  inline `emp:"prefix:DING_DONG_"`
 	}
 
 	expect := &args{
 		CREATOR: "Hexa",
 		GULU:    333333,
-		inline: inline{
+		Inline: inline{
 			Duang:    "biubiubiu",
 			BANGBANG: "gulugulu",
 		},
@@ -496,6 +496,49 @@ func TestParseStringToArrayAndSlice(t *testing.T) {
 		t.Fatal(err)
 	}
 	err = parser.Parse(res)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, expect, res)
+}
+
+func TestIgnorePrivate(t *testing.T) {
+	parseEnv(map[string]string{
+		"TEST_IGNORE_LOVELY_CREATOR":     "Hexa",
+		"TEST_IGNORE_KALA_GULU":          "333333",
+		"TEST_IGNORE_DING_DONG_DUANG":    "biubiubiu",
+		"TEST_IGNORE_DING_DONG_BANGBANG": "gulugulu",
+	})
+
+	type inline struct {
+		duang    string
+		BANGBANG string
+	}
+
+	type args struct {
+		LOVELY_CREATOR string `emp:"prefix:TEST_IGNORE_"`
+		KALA_GULU      int    `emp:"prefix:TEST_IGNORE_"`
+		Inline         inline `emp:"prefix:TEST_IGNORE_DING_DONG_"`
+		inline         inline `emp:"prefix:TEST_IGNORE_DING_DONG_"`
+	}
+
+	expect := &args{
+		LOVELY_CREATOR: "Hexa",
+		KALA_GULU:      333333,
+		Inline: inline{
+			duang:    "",
+			BANGBANG: "gulugulu",
+		},
+		inline: inline{
+			duang:    "",
+			BANGBANG: "",
+		},
+	}
+
+	res := new(args)
+
+	err := Parse(res)
 	if err != nil {
 		t.Fatal(err)
 	}
