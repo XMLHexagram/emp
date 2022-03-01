@@ -545,3 +545,26 @@ func TestIgnorePrivate(t *testing.T) {
 
 	assert.Equal(t, expect, res)
 }
+
+func TestIgnore(t *testing.T) {
+	parseEnv(map[string]string{
+		"TEST_STRING": "test",
+	})
+
+	type args struct {
+		TEST_STRING string `emp:"-"`
+	}
+
+	expect := &args{
+		TEST_STRING: "",
+	}
+
+	res := new(args)
+
+	err := Parse(res)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, expect, res)
+}
