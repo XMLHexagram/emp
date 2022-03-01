@@ -12,13 +12,18 @@ func parseTagString(tagString string) (prefix string, name string, default_ stri
 	for _, tagPart := range tagParts {
 		if tagPart == "-" {
 			isIgnore = true
+			continue
 		} else if strings.HasPrefix(tagPart, "prefix:") {
 			prefix = strings.TrimPrefix(tagPart, "prefix:")
+			continue
 		} else if strings.HasPrefix(tagPart, "name:") {
 			name = strings.TrimPrefix(tagPart, "name:")
+			continue
 		} else if strings.HasPrefix(tagPart, "default:") {
 			default_ = strings.TrimPrefix(tagPart, "default:")
+			continue
 		}
+		name = tagPart
 	}
 	return prefix, name, default_, isIgnore
 }

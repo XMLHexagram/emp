@@ -310,7 +310,7 @@ func TestTagName(t *testing.T) {
 	})
 
 	type args struct {
-		Creator string `emp:"name:TEST_TAG_NAME_STRING"`
+		Creator string `emp:"TEST_TAG_NAME_STRING"`
 		Gulu    int    `emp:"name:TEST_TAG_NAME_INT"`
 	}
 
@@ -338,7 +338,7 @@ func TestPrefix(t *testing.T) {
 	})
 
 	type inline struct {
-		Duang    string `emp:"name:DUANG"`
+		Duang    string `emp:"DUANG"`
 		BANGBANG string
 	}
 
