@@ -26,15 +26,11 @@ func parseTagString(tagString string) (prefix string, name string, default_ stri
 func getKind(val reflect.Value) reflect.Kind {
 	kind := val.Kind()
 
-	switch {
-	case kind >= reflect.Uint && kind <= reflect.Uint64:
-		return reflect.Uint
-	default:
-		return kind
-	}
+	return kind
 }
 
-func ParseStringToSlice(s string) []string {
+// ParseStringToArrayAndSlice is the default parser for string to slice
+func ParseStringToArrayAndSlice(s string) []string {
 	if s == "" {
 		return []string{}
 	}

@@ -7,29 +7,42 @@ import (
 	"strconv"
 )
 
+// A Parser takes a raw interface value and fill it data,
+// keeping track of rich error information along the way in case
+// anything goes wrong. You can more finely control how the Parser
+// behaves using the Config structure. The top-level parse
+// method is just a convenience that sets up the most basic Parser.
 type Parser struct {
 	config *Config
 }
 
+// Config is the configuration that is used to create a new parser
+// and allows customization of various aspects of decoding.
 type Config struct {
 	// ZeroFields, if set to true, will zero fields before writing them.
-	// For example, a map will be emptied before decoded values are put in
+	// For example, a map will be emptied before parsed values are put in
 	// it. If this is false, a map will be merged.
 	ZeroFields bool
 
-	// The tag name that emp reads for field names. This
-	// defaults to "emp"
+	// The TagName that emp reads for field names. This defaults to "emp".
 	TagName string
 
+	// Prefix, if set, will be the first part of all environment value name.
 	Prefix string
 
+	// AllowEmpty, if set to true, will allow empty values in environment values.
 	AllowEmpty bool
 
+	// DirectDefault, if set to true, will use the default value in field name directly.
 	DirectDefault bool
 
+	// ParseStringToArrayAndSlice, customize the way split string to array and slice.
 	ParseStringToArrayAndSlice func(s string) []string
 }
 
+// NewParser returns a new parser for the given configuration. Once
+// a parser has been returned, the same configuration must not be used
+// again.
 func NewParser(config *Config) (*Parser, error) {
 	if config == nil {
 		config = &Config{}
@@ -40,7 +53,7 @@ func NewParser(config *Config) (*Parser, error) {
 	}
 
 	if config.ParseStringToArrayAndSlice == nil {
-		config.ParseStringToArrayAndSlice = ParseStringToSlice
+		config.ParseStringToArrayAndSlice = ParseStringToArrayAndSlice
 	}
 
 	return &Parser{
@@ -48,6 +61,8 @@ func NewParser(config *Config) (*Parser, error) {
 	}, nil
 }
 
+// Parse takes an input structure and uses reflection to translate it to
+// the output structure. output must be a pointer to a map or struct.
 func Parse(inputPtrInterface interface{}) error {
 	config := &Config{}
 
@@ -59,10 +74,13 @@ func Parse(inputPtrInterface interface{}) error {
 	return parser.Parse(inputPtrInterface)
 }
 
+// Parse parses the given raw interface to the target pointer specified
+// by the configuration.
 func (self *Parser) Parse(StructPtrInterface interface{}) error {
 	return self.parse(self.config.Prefix, "", "", self.config.DirectDefault, reflect.ValueOf(StructPtrInterface).Elem())
 }
 
+// parse environment value to specific reflection value.
 func (self *Parser) parse(prefix string, name string, default_ string, directDefault bool, outVal reflect.Value) error {
 	var err error
 	outValKind := getKind(outVal)
