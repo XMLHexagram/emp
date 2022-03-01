@@ -20,11 +20,11 @@ func main() {
     envStringValue := os.Getenv("SOME_ENV")
 	
     if envStringValue == "" {
-		panic("missing SOME_ENV")
+        panic("missing SOME_ENV") 
         // OR: envStringValue = "default"
     }
     
-	// convert string to the type you want
+    // convert string to the type you want
     envValue := sthConvert(envValue)
 }    
 ```
@@ -43,7 +43,7 @@ func main() {
         SOME_ENV   int
         SOME_ENV_1 string
         SOME_ENV_2 []string
-		// whatever type you want, but not map
+        // whatever type you want, but not map
     }
 
     envModel := new(EnvModel)
