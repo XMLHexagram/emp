@@ -59,6 +59,7 @@ func main() {
 Now, `SOME_ENV` is parsed to `envModel`.
 
 It is simpler and easier to understand than the previous one, right?
+
 What, no? Then you need to see [Usage](#Usage) below.
 
 ## Installation
@@ -115,6 +116,7 @@ HTTP_TIMEOUT=0
 ```
 
 Good, but not good enough. Maybe you want `SERVER_PORT` and `SERVER_HTTP_TIMEOUT`.
+
 Let's try `AutoPrefix`:
 
 ```go
@@ -136,6 +138,7 @@ SERVER_HTTP_TIMEOUT=0
 ```
 
 Much better, but can emp do something more?
+
 Of course can, let's try `field tag` to customize the `prefix` and `environment variable` emp looking for:
 
 ```go
@@ -174,7 +177,10 @@ _ := emp.Parse(envModel)
 
 envModel is now filled with environment variables you need. 🎉
 
-That's All? No, emp also provides more features to customize your environment variables parsing.
+That's All? 
+
+No, emp also provides more features to customize your environment variables parsing.
+
 See [emp doc](https://godoc.org/github.com/XMLHexagram/emp) for more details.
 
 ## Q & A
@@ -201,7 +207,8 @@ If you have any idea, please [open an issue](https://github.com/XMLHexagram/emp/
 
 ## Thanks
 
-Thanks to [mitchellh/mapstructure](https://github.com/mitchellh/mapstructure), I used code from your repo.
+Thanks to [mitchellh/mapstructure](https://github.com/mitchellh/mapstructure), Your repo have inspired me, and I used 
+some code from your repo.
 
 ## More Feature or Bug Report
 
