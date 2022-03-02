@@ -1,6 +1,7 @@
 package emp
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -32,4 +33,56 @@ func TestReadmeExample(t *testing.T) {
 	}
 
 	assert.Equal(t, expect, res)
+}
+
+func TestReadmeExample2(t *testing.T) {
+	type EnvModel struct {
+		JWT_SECERT string
+		JWT_EXPIRE int
+		REDIS_URL  string
+		SERVER_    struct {
+			PORT         string
+			HTTP_TIMEOUT int
+		}
+		// whatever type you want, but not map
+	}
+
+	res, err := Marshal(&EnvModel{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println(res)
+
+	parser, err := NewParser(&Config{
+		AutoPrefix: true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	res, err = parser.Marshal(&EnvModel{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println(res)
+
+	type EnvModel1 struct {
+		JwtSecret string `emp:"JWT_SECRET"`
+		JwtExpire int    `emp:"JWT_EXPIRE"`
+		RedisUrl  string `emp:"REDIS_URL"`
+		Server    struct {
+			Port        string `emp:"SERVER_PORT"`
+			HttpTimeout int    `emp:"SERVER_HTTP_TIMEOUT"`
+		} `emp:"prefix:SERVER_"`
+		// whatever type you want, but not map
+	}
+
+	res, err = Marshal(&EnvModel1{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println(res)
 }
