@@ -1,6 +1,6 @@
 module example
 
-go 1.18
+go 1.17
 
 require (
 	github.com/XMLHexagram/emp v1.0.0-beta.2
