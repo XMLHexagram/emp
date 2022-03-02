@@ -244,7 +244,7 @@ func (self *Parser) parse(prefix string, name string, default_ string, directDef
 		err = self.parseFloatX(prefix, name, default_, directDefault, outVal, 64)
 	case reflect.String:
 		err = self.parseString(prefix, name, default_, directDefault, outVal)
-	case reflect.Pointer:
+	case reflect.Ptr:
 		err = self.parsePointer(prefix, name, default_, directDefault, outVal)
 	case reflect.Map:
 		// TODO: wait for a great way
