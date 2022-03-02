@@ -1,6 +1,7 @@
 package emp
 
 import (
+	"fmt"
 	"github.com/XMLHexagram/emp/empErr"
 	"os"
 	"reflect"
@@ -32,6 +33,14 @@ func getKind(val reflect.Value) reflect.Kind {
 	kind := val.Kind()
 
 	return kind
+}
+
+func formatSliceAndArrayReflectValue(value reflect.Value) string {
+	res := make([]string, value.Len())
+	for i := 0; i < value.Len(); i++ {
+		res[i] = fmt.Sprintf("%v", value.Index(i).Interface())
+	}
+	return strings.Join(res, ",")
 }
 
 // ParseStringToArrayAndSlice is the default parser for string to slice

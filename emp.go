@@ -464,7 +464,7 @@ func (self *Parser) parseArray(prefix string, name string, default_ string, dire
 	arrayType := reflect.ArrayOf(valType.Len(), valElemType)
 
 	if self.config.marshal {
-		self.config.marshalRes += fmt.Sprintf("%s=%v\n", prefix+name, val.Interface())
+		self.config.marshalRes += fmt.Sprintf("%s=%v\n", prefix+name, formatSliceAndArrayReflectValue(val))
 		return nil
 	}
 
@@ -511,7 +511,7 @@ func (self *Parser) parseSlice(prefix string, name string, default_ string, dire
 	sliceType := reflect.SliceOf(valElemType)
 
 	if self.config.marshal {
-		self.config.marshalRes += fmt.Sprintf("%s=%v\n", prefix+name, val.Interface())
+		self.config.marshalRes += fmt.Sprintf("%s=%v\n", prefix+name, formatSliceAndArrayReflectValue(val))
 		return nil
 	}
 

@@ -1,7 +1,6 @@
 package emp
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"strings"
@@ -617,8 +616,7 @@ func TestMarshal(t *testing.T) {
 		Inline
 	}
 
-	expect := `
-BOOL=false
+	expect := `BOOL=false
 INT=10000
 STRING=gogogo
 ARRAY=1,3,5
@@ -638,6 +636,5 @@ ARRAY=1,3,5
 		panic(err)
 	}
 
-	fmt.Println(res)
 	assert.Equal(t, expect, res)
 }
