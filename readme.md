@@ -2,6 +2,8 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/XMLHexagram/emp)](https://goreportcard.com/report/github.com/XMLHexagram/emp)
 [![Godoc](https://godoc.org/github.com/XMLHexagram/emp?status.svg)](https://pkg.go.dev/github.com/XMLHexagram/emp)
+[![Test](https://github.com/XMLHexagram/emp/actions/workflows/go.yml/badge.svg)](https://github.com/XMLHexagram/emp/actions/workflows/go.yml)
+![Go Version](https://img.shields.io/badge/go%20version-%3E=1.14-61CFDD.svg)
 
 ## What is emp?
 
@@ -207,8 +209,8 @@ If you have any idea, please [open an issue](https://github.com/XMLHexagram/emp/
 
 ## Thanks
 
-Thanks to [mitchellh/mapstructure](https://github.com/mitchellh/mapstructure), Your repo have inspired me, and I used 
-some code from your repo.
+Thanks to [mitchellh/mapstructure](https://github.com/mitchellh/mapstructure) and [spf13/viper](https://github.
+com/spf13/viper), Your repos have inspired me, and I used some code from your repo.
 
 ## More Feature or Bug Report
 
