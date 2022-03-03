@@ -27,7 +27,7 @@ func main() {
     }
     
     // convert string to the type you want
-    envValue := sthConvert(envValue)
+    envValue := sthConvert(envStringValue)
 }    
 ```
 

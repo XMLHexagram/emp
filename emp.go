@@ -192,89 +192,89 @@ func Marshal(inputPtrInterface interface{}) (string, error) {
 
 // Parse parses the given raw interface to the target pointer specified
 // by the configuration.
-func (self *Parser) Parse(StructPtrInterface interface{}) error {
-	return self.parse(self.config.Prefix, "", "", self.config.DirectDefault, reflect.ValueOf(StructPtrInterface).Elem())
+func (p *Parser) Parse(StructPtrInterface interface{}) error {
+	return p.parse(p.config.Prefix, "", "", p.config.DirectDefault, reflect.ValueOf(StructPtrInterface).Elem())
 }
 
 // Marshal struct to get an env file format string.
-func (self *Parser) Marshal(StructPtrInterface interface{}) (string, error) {
-	self.config.marshal = true
-	self.config.marshalRes = ""
+func (p *Parser) Marshal(StructPtrInterface interface{}) (string, error) {
+	p.config.marshal = true
+	p.config.marshalRes = ""
 	defer func() {
-		self.config.marshal = false
-		self.config.marshalRes = ""
+		p.config.marshal = false
+		p.config.marshalRes = ""
 	}()
-	err := self.parse(self.config.Prefix, "", "", self.config.DirectDefault, reflect.ValueOf(StructPtrInterface).Elem())
+	err := p.parse(p.config.Prefix, "", "", p.config.DirectDefault, reflect.ValueOf(StructPtrInterface).Elem())
 	if err != nil {
 		return "", err
 	}
-	return self.config.marshalRes, nil
+	return p.config.marshalRes, nil
 }
 
 // parse environment value to specific reflection value.
-func (self *Parser) parse(prefix string, name string, default_ string, directDefault bool, outVal reflect.Value) error {
+func (p *Parser) parse(prefix string, name string, default_ string, directDefault bool, outVal reflect.Value) error {
 	var err error
 	outValKind := getKind(outVal)
 	switch outValKind {
 	case reflect.Bool:
-		err = self.parseBool(prefix, name, default_, directDefault, outVal)
+		err = p.parseBool(prefix, name, default_, directDefault, outVal)
 	case reflect.Int:
-		err = self.parseIntX(prefix, name, default_, directDefault, outVal, 0)
+		err = p.parseIntX(prefix, name, default_, directDefault, outVal, 0)
 	case reflect.Int8:
-		err = self.parseIntX(prefix, name, default_, directDefault, outVal, 8)
+		err = p.parseIntX(prefix, name, default_, directDefault, outVal, 8)
 	case reflect.Int16:
-		err = self.parseIntX(prefix, name, default_, directDefault, outVal, 16)
+		err = p.parseIntX(prefix, name, default_, directDefault, outVal, 16)
 	case reflect.Int32:
-		err = self.parseIntX(prefix, name, default_, directDefault, outVal, 32)
+		err = p.parseIntX(prefix, name, default_, directDefault, outVal, 32)
 	case reflect.Int64:
-		err = self.parseIntX(prefix, name, default_, directDefault, outVal, 64)
+		err = p.parseIntX(prefix, name, default_, directDefault, outVal, 64)
 	case reflect.Uint:
-		err = self.parseUintX(prefix, name, default_, directDefault, outVal, 0)
+		err = p.parseUintX(prefix, name, default_, directDefault, outVal, 0)
 	case reflect.Uint8:
-		err = self.parseUintX(prefix, name, default_, directDefault, outVal, 8)
+		err = p.parseUintX(prefix, name, default_, directDefault, outVal, 8)
 	case reflect.Uint16:
-		err = self.parseUintX(prefix, name, default_, directDefault, outVal, 16)
+		err = p.parseUintX(prefix, name, default_, directDefault, outVal, 16)
 	case reflect.Uint32:
-		err = self.parseUintX(prefix, name, default_, directDefault, outVal, 32)
+		err = p.parseUintX(prefix, name, default_, directDefault, outVal, 32)
 	case reflect.Uint64:
-		err = self.parseUintX(prefix, name, default_, directDefault, outVal, 64)
+		err = p.parseUintX(prefix, name, default_, directDefault, outVal, 64)
 	case reflect.Float32:
-		err = self.parseFloatX(prefix, name, default_, directDefault, outVal, 32)
+		err = p.parseFloatX(prefix, name, default_, directDefault, outVal, 32)
 	case reflect.Float64:
-		err = self.parseFloatX(prefix, name, default_, directDefault, outVal, 64)
+		err = p.parseFloatX(prefix, name, default_, directDefault, outVal, 64)
 	case reflect.String:
-		err = self.parseString(prefix, name, default_, directDefault, outVal)
+		err = p.parseString(prefix, name, default_, directDefault, outVal)
 	case reflect.Ptr:
-		err = self.parsePointer(prefix, name, default_, directDefault, outVal)
+		err = p.parsePointer(prefix, name, default_, directDefault, outVal)
 	case reflect.Map:
 		// TODO: wait for a great way
-		err = self.parseMap(prefix, name, default_, outVal)
+		err = p.parseMap(prefix, name, default_, outVal)
 	case reflect.Struct:
-		err = self.parseStruct(prefix, name, default_, directDefault, outVal)
+		err = p.parseStruct(prefix, name, default_, directDefault, outVal)
 	case reflect.Array:
-		err = self.parseArray(prefix, name, default_, directDefault, outVal)
+		err = p.parseArray(prefix, name, default_, directDefault, outVal)
 	case reflect.Slice:
-		err = self.parseSlice(prefix, name, default_, directDefault, outVal)
+		err = p.parseSlice(prefix, name, default_, directDefault, outVal)
 	case reflect.Interface:
-		err = self.parseInterface(prefix, name, default_, directDefault, outVal)
+		err = p.parseInterface(prefix, name, default_, directDefault, outVal)
 	}
 
 	return err
 }
 
-func (self *Parser) parseBool(prefix string, name string, default_ string, directDefault bool, val reflect.Value) error {
+func (p *Parser) parseBool(prefix string, name string, default_ string, directDefault bool, val reflect.Value) error {
 	val = reflect.Indirect(val)
 	// valType := val.Type()
 
-	if self.config.marshal {
-		self.config.marshalRes += fmt.Sprintf("%s=%t\n", prefix+name, val.Bool())
+	if p.config.marshal {
+		p.config.marshalRes += fmt.Sprintf("%s=%t\n", prefix+name, val.Bool())
 		return nil
 	}
 
 	var value bool
 
 	key := prefix + name
-	envString, err := getEnvString(key, default_, directDefault, self.config.AllowEmpty)
+	envString, err := getEnvString(key, default_, directDefault, p.config.AllowEmpty)
 	if err != nil {
 		return err
 	}
@@ -288,19 +288,19 @@ func (self *Parser) parseBool(prefix string, name string, default_ string, direc
 	return nil
 }
 
-func (self *Parser) parseString(prefix string, name string, default_ string, directDefault bool, val reflect.Value) error {
+func (p *Parser) parseString(prefix string, name string, default_ string, directDefault bool, val reflect.Value) error {
 	val = reflect.Indirect(val)
 	// valType := val.Type()
 
-	if self.config.marshal {
-		self.config.marshalRes += fmt.Sprintf("%s=%s\n", prefix+name, val.String())
+	if p.config.marshal {
+		p.config.marshalRes += fmt.Sprintf("%s=%s\n", prefix+name, val.String())
 		return nil
 	}
 
 	var value string
 
 	key := prefix + name
-	envString, err := getEnvString(key, default_, directDefault, self.config.AllowEmpty)
+	envString, err := getEnvString(key, default_, directDefault, p.config.AllowEmpty)
 	if err != nil {
 		return err
 	}
@@ -311,31 +311,31 @@ func (self *Parser) parseString(prefix string, name string, default_ string, dir
 	return nil
 }
 
-func (self *Parser) parsePointer(prefix string, name string, default_ string, directDefault bool, val reflect.Value) error {
+func (p *Parser) parsePointer(prefix string, name string, default_ string, directDefault bool, val reflect.Value) error {
 	// Create an element of the concrete (non pointer) type and decode
 	// into that. Then set the value of the pointer to this type.
 	valType := val.Type()
 	valElemType := valType.Elem()
 
-	if self.config.marshal {
-		err := self.parse(prefix, name, "", directDefault, reflect.Indirect(val))
+	if p.config.marshal {
+		err := p.parse(prefix, name, "", directDefault, reflect.Indirect(val))
 		return err
 	}
 
 	if val.CanSet() {
 		realVal := val
-		if realVal.IsNil() || self.config.ZeroFields {
+		if realVal.IsNil() || p.config.ZeroFields {
 			realVal = reflect.New(valElemType)
 		}
 
-		err := self.parse(prefix, name, "", directDefault, reflect.Indirect(realVal))
+		err := p.parse(prefix, name, "", directDefault, reflect.Indirect(realVal))
 		if err != nil {
 			return err
 		}
 
 		val.Set(realVal)
 	} else {
-		err := self.parse(prefix, name, "", directDefault, reflect.Indirect(val))
+		err := p.parse(prefix, name, "", directDefault, reflect.Indirect(val))
 		if err != nil {
 			return err
 		}
@@ -344,7 +344,7 @@ func (self *Parser) parsePointer(prefix string, name string, default_ string, di
 	return nil
 }
 
-func (self *Parser) parseStruct(prefix string, name string, default_ string, directDefault bool, val reflect.Value) error {
+func (p *Parser) parseStruct(prefix string, name string, default_ string, directDefault bool, val reflect.Value) error {
 	val = reflect.Indirect(val)
 	valType := val.Type()
 	for i := 0; i < val.NumField(); i++ {
@@ -353,7 +353,7 @@ func (self *Parser) parseStruct(prefix string, name string, default_ string, dir
 			continue
 		}
 		fieldName := valType.Field(i).Name
-		tagPrefix, name, default_, isIgnore := parseTagString(valType.Field(i).Tag.Get(self.config.TagName))
+		tagPrefix, name, default_, isIgnore := parseTagString(valType.Field(i).Tag.Get(p.config.TagName))
 
 		if name == "" {
 			name = fieldName
@@ -364,11 +364,11 @@ func (self *Parser) parseStruct(prefix string, name string, default_ string, dir
 		}
 
 		// auto prefix
-		if field.Type().Kind() == reflect.Struct && tagPrefix == "" && self.config.AutoPrefix {
+		if field.Type().Kind() == reflect.Struct && tagPrefix == "" && p.config.AutoPrefix {
 			prefix = name
 		}
 
-		err := self.parse(prefix+tagPrefix, name, default_, directDefault, field)
+		err := p.parse(prefix+tagPrefix, name, default_, directDefault, field)
 		if err != nil {
 			return err
 		}
@@ -376,19 +376,19 @@ func (self *Parser) parseStruct(prefix string, name string, default_ string, dir
 	return nil
 }
 
-func (self *Parser) parseFloatX(prefix string, name string, default_ string, directDefault bool, val reflect.Value, X int) error {
+func (p *Parser) parseFloatX(prefix string, name string, default_ string, directDefault bool, val reflect.Value, X int) error {
 	val = reflect.Indirect(val)
 	// valType := val.Type()
 
-	if self.config.marshal {
-		self.config.marshalRes += fmt.Sprintf("%s=%f", prefix+name, val.Float())
+	if p.config.marshal {
+		p.config.marshalRes += fmt.Sprintf("%s=%f", prefix+name, val.Float())
 		return nil
 	}
 
 	var value float64
 
 	key := prefix + name
-	envString, err := getEnvString(key, default_, directDefault, self.config.AllowEmpty)
+	envString, err := getEnvString(key, default_, directDefault, p.config.AllowEmpty)
 	if err != nil {
 		return err
 	}
@@ -402,19 +402,19 @@ func (self *Parser) parseFloatX(prefix string, name string, default_ string, dir
 	return nil
 }
 
-func (self *Parser) parseIntX(prefix string, name string, default_ string, directDefault bool, val reflect.Value, X int) error {
+func (p *Parser) parseIntX(prefix string, name string, default_ string, directDefault bool, val reflect.Value, X int) error {
 	val = reflect.Indirect(val)
 	// valType := val.Type()
 
-	if self.config.marshal {
-		self.config.marshalRes += fmt.Sprintf("%s=%d\n", prefix+name, val.Int())
+	if p.config.marshal {
+		p.config.marshalRes += fmt.Sprintf("%s=%d\n", prefix+name, val.Int())
 		return nil
 	}
 
 	var value int64
 
 	key := prefix + name
-	envString, err := getEnvString(key, default_, directDefault, self.config.AllowEmpty)
+	envString, err := getEnvString(key, default_, directDefault, p.config.AllowEmpty)
 	if err != nil {
 		return err
 	}
@@ -428,19 +428,19 @@ func (self *Parser) parseIntX(prefix string, name string, default_ string, direc
 	return nil
 }
 
-func (self *Parser) parseUintX(prefix string, name string, default_ string, directDefault bool, val reflect.Value, X int) error {
+func (p *Parser) parseUintX(prefix string, name string, default_ string, directDefault bool, val reflect.Value, X int) error {
 	val = reflect.Indirect(val)
 	// valType := val.Type()
 
-	if self.config.marshal {
-		self.config.marshalRes += fmt.Sprintf("%s=%d\n", prefix+name, val.Uint())
+	if p.config.marshal {
+		p.config.marshalRes += fmt.Sprintf("%s=%d\n", prefix+name, val.Uint())
 		return nil
 	}
 
 	var value uint64
 
 	key := prefix + name
-	envString, err := getEnvString(key, default_, directDefault, self.config.AllowEmpty)
+	envString, err := getEnvString(key, default_, directDefault, p.config.AllowEmpty)
 	if err != nil {
 		return err
 	}
@@ -454,33 +454,33 @@ func (self *Parser) parseUintX(prefix string, name string, default_ string, dire
 	return nil
 }
 
-func (self *Parser) parseMap(prefix string, name string, default_ string, val reflect.Value) error {
+func (p *Parser) parseMap(prefix string, name string, default_ string, val reflect.Value) error {
 	return empErr.UnsupportedTypeError.New().Wrap("map type is not supported")
 }
 
-func (self *Parser) parseArray(prefix string, name string, default_ string, directDefault bool, val reflect.Value) error {
+func (p *Parser) parseArray(prefix string, name string, default_ string, directDefault bool, val reflect.Value) error {
 	valType := val.Type()
 	valElemType := valType.Elem()
 	arrayType := reflect.ArrayOf(valType.Len(), valElemType)
 
-	if self.config.marshal {
-		self.config.marshalRes += fmt.Sprintf("%s=%v\n", prefix+name, formatSliceAndArrayReflectValue(val))
+	if p.config.marshal {
+		p.config.marshalRes += fmt.Sprintf("%s=%v\n", prefix+name, formatSliceAndArrayReflectValue(val))
 		return nil
 	}
 
 	valArray := val
 
 	key := prefix + name
-	envString, err := getEnvString(key, default_, directDefault, self.config.AllowEmpty)
+	envString, err := getEnvString(key, default_, directDefault, p.config.AllowEmpty)
 	if err != nil {
 		return err
 	}
 
 	// Make a new array to hold our result, same size as the original data.
-	if self.config.ZeroFields {
+	if p.config.ZeroFields {
 		valArray = reflect.New(arrayType).Elem()
 	}
-	dataSlice := self.config.ParseStringToArrayAndSlice(envString)
+	dataSlice := p.config.ParseStringToArrayAndSlice(envString)
 
 	if len(dataSlice) > valArray.Len() {
 		return empErr.
@@ -491,7 +491,7 @@ func (self *Parser) parseArray(prefix string, name string, default_ string, dire
 	errors := make([]string, 0)
 
 	for i, v := range dataSlice {
-		err := self.parse("", "", v, true, valArray.Index(i))
+		err := p.parse("", "", v, true, valArray.Index(i))
 		if err != nil {
 			errors = append(errors, err.Error())
 		}
@@ -505,29 +505,29 @@ func (self *Parser) parseArray(prefix string, name string, default_ string, dire
 	return nil
 }
 
-func (self *Parser) parseSlice(prefix string, name string, default_ string, directDefault bool, val reflect.Value) error {
+func (p *Parser) parseSlice(prefix string, name string, default_ string, directDefault bool, val reflect.Value) error {
 	valType := val.Type()
 	valElemType := valType.Elem()
 	sliceType := reflect.SliceOf(valElemType)
 
-	if self.config.marshal {
-		self.config.marshalRes += fmt.Sprintf("%s=%v\n", prefix+name, formatSliceAndArrayReflectValue(val))
+	if p.config.marshal {
+		p.config.marshalRes += fmt.Sprintf("%s=%v\n", prefix+name, formatSliceAndArrayReflectValue(val))
 		return nil
 	}
 
 	valSlice := val
-	if valSlice.IsNil() || self.config.ZeroFields {
+	if valSlice.IsNil() || p.config.ZeroFields {
 		// Make a new slice to hold our result, same size as the original data.
 		valSlice = reflect.MakeSlice(sliceType, 0, 0)
 	}
 
 	key := prefix + name
-	envString, err := getEnvString(key, default_, directDefault, self.config.AllowEmpty)
+	envString, err := getEnvString(key, default_, directDefault, p.config.AllowEmpty)
 	if err != nil {
 		return err
 	}
 
-	dataSlice := self.config.ParseStringToArrayAndSlice(envString)
+	dataSlice := p.config.ParseStringToArrayAndSlice(envString)
 
 	// Accumulate any errors
 	errors := make([]string, 0)
@@ -538,7 +538,7 @@ func (self *Parser) parseSlice(prefix string, name string, default_ string, dire
 		}
 		currentField := valSlice.Index(i)
 
-		err := self.parse("", "", v, true, currentField)
+		err := p.parse("", "", v, true, currentField)
 		if err != nil {
 			errors = append(errors, err.Error())
 		}
@@ -552,19 +552,19 @@ func (self *Parser) parseSlice(prefix string, name string, default_ string, dire
 	return nil
 }
 
-func (self *Parser) parseInterface(prefix string, name string, default_ string, directDefault bool, val reflect.Value) error {
+func (p *Parser) parseInterface(prefix string, name string, default_ string, directDefault bool, val reflect.Value) error {
 	val = reflect.Indirect(val)
 	// valType := val.Type()
 
-	if self.config.marshal {
-		self.config.marshalRes += fmt.Sprintf("%s=%v\n", prefix+name, val.Interface())
+	if p.config.marshal {
+		p.config.marshalRes += fmt.Sprintf("%s=%v\n", prefix+name, val.Interface())
 		return nil
 	}
 
 	var value string
 
 	key := prefix + name
-	envString, err := getEnvString(key, default_, directDefault, self.config.AllowEmpty)
+	envString, err := getEnvString(key, default_, directDefault, p.config.AllowEmpty)
 	if err != nil {
 		return err
 	}
